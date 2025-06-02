@@ -1,29 +1,18 @@
+import os
+import io
 import streamlit as st
 import yaml
 from yaml.loader import SafeLoader
 import bcrypt
 from streamlit_option_menu import option_menu
 
-# Import modul screens kamu
-from screens import daftar_alat_public
-from screens import riwayat_kalibrasi
-from screens import laporan_kerusakan
-from screens import dashboard
-from screens import (
-    dashboard,
-    input_maintenance,
-    laporan_maintenance,
-    daftar_alat,
-    jadwal_kalibrasi,
-    manual_teknisi,
-    laporan_kerusakan,
-    riwayat_kalibrasi,
-)
+# Buat file credentials.json dari secret ENV VAR jika belum ada
+credential_json_str = os.getenv("CREDENTIALS_JSON")
+if credential_json_str and not os.path.exists("credentials.json"):
+    with open("credentials.json", "w") as f:
+        f.write(credential_json_str)
 
-# Load credentials dari YAML
-import os
-import io
-
+# Load credentials.yaml dari secret ENV VAR atau file fallback
 credential_yaml_str = os.getenv("CREDENTIALS_YAML")
 if credential_yaml_str:
     config = yaml.load(io.StringIO(credential_yaml_str), Loader=SafeLoader)
