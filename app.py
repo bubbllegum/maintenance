@@ -139,7 +139,7 @@ def login():
 
         <div class="login-header">
             <img class="login-logo" src="https://i.postimg.cc/gJjQzMxy/IPSSRS.png" alt="Logo">
-            <div class="fade-text">🔐 Silakan Login untuk Akses Sistem</div>
+            <div class="fade-text">🔐 ELEKTROMEDIS LOGIN</div>
         </div>
         """,
         unsafe_allow_html=True,
