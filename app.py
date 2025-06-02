@@ -421,15 +421,15 @@ def main():
                 margin-top: 20px;
             }
             .social-icons a {
-                margin: 0 30px;
+                margin: 0 15px;
                 display: inline-block;
             }
             .social-icons img {
                 display: block;
                 margin-left: auto;
                 margin-right: auto;
-                width: 70px;
-                height: 70px;
+                width: 50px;
+                height: 50px;
             }
             </style>
             <div class="social-icons">
