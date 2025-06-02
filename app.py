@@ -138,7 +138,7 @@ def login():
         </style>
 
         <div class="login-header">
-           <img src="https://raw.githubusercontent.com/username/repo-name/main/images/IPSSRS.png" alt="Logo IPSSRS" />
+           <img src="https://raw.githubusercontent.com/bubbllegum/maintenance/refs/heads/main/IPSSRS.png" alt="Logo IPSSRS" />
             <div class="fade-text">🔐 ELEKTROMEDIS LOGIN</div>
         </div>
         """,
