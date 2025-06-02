@@ -22,6 +22,19 @@ else:
 
 VALID_USERS = {user['username']: user['password_hash'] for user in config['credentials']}
 
+# Import modul screens
+from screens import (
+    daftar_alat_public,
+    riwayat_kalibrasi,
+    laporan_kerusakan,
+    dashboard,
+    input_maintenance,
+    laporan_maintenance,
+    daftar_alat,
+    jadwal_kalibrasi,
+    manual_teknisi,
+)
+
 def verify_password(plain_password, hashed_password):
     return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
@@ -328,21 +341,18 @@ def inject_animations():
         unsafe_allow_html=True,
     )
 
-# Session initialization
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
-if 'username' not in st.session_state:
-    st.session_state['username'] = None
-if 'input_username' not in st.session_state:
-    st.session_state['input_username'] = ''
-if 'input_password' not in st.session_state:
-    st.session_state['input_password'] = ''
-if 'remember_me' not in st.session_state:
-    st.session_state['remember_me'] = True
-if 'cookie_expiry_days' not in st.session_state:
-    st.session_state['cookie_expiry_days'] = 0
-if 'reload' not in st.session_state:
-    st.session_state['reload'] = False
+# Initialize session state variables
+for key, default in {
+    'logged_in': False,
+    'username': None,
+    'input_username': '',
+    'input_password': '',
+    'remember_me': True,
+    'cookie_expiry_days': 0,
+    'reload': False
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
 
 authentication_status = st.session_state['logged_in']
 name = st.session_state['username'] if authentication_status else None
@@ -361,12 +371,11 @@ public_pages = {
     "Riwayat Kalibrasi internal dan eksternal": riwayat_kalibrasi.show,
     "Daftar Alat": daftar_alat_public.show,
     "Laporan Kerusakan": laporan_kerusakan.show,
-} 
+}
 
 def main():
     st.set_page_config(page_title="Aplikasi Monitoring", layout="wide")
 
-    # Inject animasi partikel & gelombang warna full page + snow sidebar
     inject_animations()
 
     if not authentication_status:
@@ -396,7 +405,7 @@ def main():
             public_page = option_menu(
                 menu_title=None,
                 options=list(public_pages.keys()),
-                icons=["speedometer","clock-history", "list-task", "exclamation-triangle"],
+                icons=["speedometer", "clock-history", "list-task", "exclamation-triangle"],
                 menu_icon="cast",
                 default_index=0,
                 orientation="vertical",
@@ -404,7 +413,6 @@ def main():
 
         public_pages[public_page]()
 
-        # Sosial media icons di bawah navigasi publik
         st.sidebar.markdown(
             """
             <style>
