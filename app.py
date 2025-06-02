@@ -428,8 +428,8 @@ def main():
                 display: block;
                 margin-left: auto;
                 margin-right: auto;
-                width: 50px;
-                height: 50px;
+                width: 60px;
+                height: 60px;
             }
             </style>
             <div class="social-icons">
