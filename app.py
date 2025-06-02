@@ -138,7 +138,7 @@ def login():
         </style>
 
         <div class="login-header">
-            <img class="login-logo" src="https://i.postimg.cc/gJjQzMxy/IPSSRS.png" alt="Logo">
+           <img src="https://i.postimg.cc/Wz5rMTQk/IPSSRS.png" style="width: 100%;">
             <div class="fade-text">🔐 ELEKTROMEDIS LOGIN</div>
         </div>
         """,
