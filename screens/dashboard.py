@@ -75,7 +75,7 @@ def show():
     st.subheader("⚠️ Notifikasi Alat Rusak")
     if not df_maint.empty and "Status" in df_maint.columns:
         df_maint["Status"] = df_maint["Status"].fillna("")
-        rusak = df_maint[df_maint["Status"].str.lower() == "rusak"]
+        rusak = df_maint[df_maint["Status"].str.lower() == "Rusak"]
         if not rusak.empty:
             st.error(f"{len(rusak)} alat dalam kondisi Rusak!")
             st.dataframe(rusak[["Tanggal", "Ruangan", "Nama Alat", "Status"]])
