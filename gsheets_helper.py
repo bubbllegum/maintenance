@@ -64,15 +64,12 @@ def create_worksheet(spreadsheet_id: str, worksheet_name: str, rows: int = 1000,
         print(f"Error saat membuat worksheet: {e}")
         raise
 
-# ===== Tambahan fungsi create_worksheet_with_header =====
 def create_worksheet_with_header(spreadsheet_id: str, worksheet_name: str, headers: list):
     """
     Membuat worksheet/tab baru dan langsung menulis header kolom.
     """
-    # Buat worksheet baru dengan ukuran sesuai header
     create_worksheet(spreadsheet_id, worksheet_name, rows=1000, cols=len(headers))
 
-    # Tulis header ke worksheet baru
     body = {
         "values": [headers]
     }
