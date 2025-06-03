@@ -21,7 +21,7 @@ def show():
         ruangan = st.text_input("Ruangan", "")
         alat = st.text_input("Nama Alat", "")
         teknisi = st.text_input("Nama Teknisi", "")
-        status = st.selectbox("Status", ["Selesai", "Perbaikan", "Dalam Proses"])
+        status = st.selectbox("Status", ["Selesai", "Perbaikan", "Dalam Proses", "Rusak"])
         catatan = st.text_area("Catatan")
         gambar = st.file_uploader("Upload Gambar (opsional)", type=["png", "jpg", "jpeg"])
 
