@@ -32,11 +32,14 @@ class Worksheet:
         ).execute()
         return result
 
-def open_sheet(spreadsheet_id: str, worksheet_name: str):
-    """Membuka worksheet/tab bernama worksheet_name di spreadsheet."""
+def worksheet_exists(spreadsheet_id: str, worksheet_name: str) -> bool:
     spreadsheet = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
     sheet_titles = [sheet['properties']['title'] for sheet in spreadsheet['sheets']]
-    if worksheet_name not in sheet_titles:
+    return worksheet_name in sheet_titles
+
+def open_sheet(spreadsheet_id: str, worksheet_name: str):
+    """Membuka worksheet/tab bernama worksheet_name di spreadsheet."""
+    if not worksheet_exists(spreadsheet_id, worksheet_name):
         raise ValueError(f"Worksheet '{worksheet_name}' tidak ditemukan.")
     return Worksheet(service, spreadsheet_id, worksheet_name)
 
