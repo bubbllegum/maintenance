@@ -56,8 +56,8 @@ def show():
                 row = [
                     str(tanggal),
                     ruangan,
-                    nama alat,
-                    nama teknisi,
+                    alat,
+                    teknisi,
                     status,
                     catatan,
                     gambar,
