@@ -22,7 +22,10 @@ def show():
             spreadsheetId=SPREADSHEET_ID_ALAT,
             range="daftar_alat!A1:Z1000"
         ).execute().get("values", [])
-        df_alat = pd.DataFrame(df_alat_raw[1:], columns=df_alat_raw[0]) if len(df_alat_raw) > 1 else pd.DataFrame(columns=["NAMA ALAT", "RUANGAN", "MERK"])
+        if len(df_alat_raw) > 1:
+            df_alat = pd.DataFrame(df_alat_raw[1:], columns=df_alat_raw[0])
+        else:
+            df_alat = pd.DataFrame(columns=["NAMA ALAT", "RUANGAN", "MERK"])
     except Exception:
         df_alat = pd.DataFrame(columns=["NAMA ALAT", "RUANGAN", "MERK"])
 
@@ -32,11 +35,14 @@ def show():
             spreadsheetId=SPREADSHEET_ID_MAINT,
             range="input_maintenance!A1:Z1000"
         ).execute().get("values", [])
-        df_maint = pd.DataFrame(df_maint_raw[1:], columns=df_maint_raw[0]) if len(df_maint_raw) > 1 else pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
+        if len(df_maint_raw) > 1:
+            df_maint = pd.DataFrame(df_maint_raw[1:], columns=df_maint_raw[0])
+        else:
+            df_maint = pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
     except Exception:
         df_maint = pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
 
-    # Format tanggal
+    # Format tanggal di maintenance jika ada datanya
     if "Tanggal" in df_maint.columns and not df_maint.empty:
         df_maint["Tanggal"] = pd.to_datetime(df_maint["Tanggal"], errors="coerce")
 
@@ -56,25 +62,24 @@ def show():
         st.info("Tidak ada data ruangan untuk ditampilkan.")
 
     # --- Riwayat Maintenance Terbaru ---
-st.subheader("🛠️ Riwayat Maintenance Terbaru")
-if not df_maint.empty:
-    df_maint['Tanggal'] = pd.to_datetime(df_maint['Tanggal'], errors='coerce')
-    df_maint = df_maint.dropna(subset=['Tanggal'])
-    df_recent = df_maint.sort_values("Tanggal", ascending=False).head(10)
-    df_recent['Tanggal'] = df_recent['Tanggal'].dt.strftime('%d-%m-%Y')
-    st.dataframe(df_recent)
-else:
-    st.info("Belum ada data maintenance.")
+    st.subheader("🛠️ Riwayat Maintenance Terbaru")
+    if not df_maint.empty:
+        df_maint = df_maint.dropna(subset=['Tanggal'])
+        df_recent = df_maint.sort_values("Tanggal", ascending=False).head(10)
+        df_recent['Tanggal'] = df_recent['Tanggal'].dt.strftime('%d-%m-%Y')
+        st.dataframe(df_recent)
+    else:
+        st.info("Belum ada data maintenance.")
 
     # --- Notifikasi Alat Rusak ---
     st.subheader("⚠️ Notifikasi Alat Rusak")
     if not df_maint.empty and "Status" in df_maint.columns:
         df_maint["Status"] = df_maint["Status"].fillna("")
-        Rusak = df_maint[df_maint["Status"].str.lower() == "Rusak"]
+        rusak = df_maint[df_maint["Status"].str.lower() == "rusak"]
         if not rusak.empty:
-            st.error(f"{len(Rusak)} alat dalam kondisi Rusak!")
-            st.dataframe(Rusak[["Tanggal", "Ruangan", "Nama Alat", "Status"]])
+            st.error(f"{len(rusak)} alat dalam kondisi Rusak!")
+            st.dataframe(rusak[["Tanggal", "Ruangan", "Nama Alat", "Status"]])
         else:
             st.success("Semua alat dalam kondisi baik.")
     else:
-        st.info("semua alat dalam kondisi baik")
+        st.info("Semua alat dalam kondisi baik.")
