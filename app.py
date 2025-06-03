@@ -360,7 +360,6 @@ name = st.session_state['username'] if authentication_status else None
 private_pages = {
     "Dashboard": dashboard.show,
     "Input Maintenance": input_maintenance.show,
-    "Laporan Maintenance": laporan_maintenance.show,
     "Daftar Alat": daftar_alat.show,
     "Jadwal Kalibrasi": jadwal_kalibrasi.show,
     "Manual Teknisi": manual_teknisi.show,
@@ -371,6 +370,7 @@ public_pages = {
     "Riwayat Kalibrasi internal dan eksternal": riwayat_kalibrasi.show,
     "Daftar Alat": daftar_alat_public.show,
     "Laporan Kerusakan": laporan_kerusakan.show,
+    "Laporan Maintenance": laporan_maintenance.show,
 }
 
 def main():
@@ -388,7 +388,7 @@ def main():
             private_page = option_menu(
                 menu_title=None,
                 options=list(private_pages.keys()),
-                icons=["speedometer", "gear", "file-earmark-text", "list", "calendar", "book"],
+                icons=["speedometer", "gear", "list", "calendar", "book"],
                 menu_icon="cast",
                 default_index=0,
                 orientation="vertical",
@@ -405,7 +405,7 @@ def main():
             public_page = option_menu(
                 menu_title=None,
                 options=list(public_pages.keys()),
-                icons=["speedometer", "clock-history", "list-task", "exclamation-triangle"],
+                icons=["speedometer", "clock-history", "list-task", "exclamation-triangle", "file-earmark-text"],
                 menu_icon="cast",
                 default_index=0,
                 orientation="vertical",
