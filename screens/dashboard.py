@@ -56,12 +56,15 @@ def show():
         st.info("Tidak ada data ruangan untuk ditampilkan.")
 
     # --- Riwayat Maintenance Terbaru ---
-    st.subheader("🛠️ Riwayat Maintenance Terbaru")
-    if not df_maint.empty:
-        df_recent = df_maint.sort_values("Tanggal", ascending=False).head(10)
-        st.dataframe(df_recent)
-    else:
-        st.info("Belum ada data maintenance.")
+st.subheader("🛠️ Riwayat Maintenance Terbaru")
+if not df_maint.empty:
+    df_maint['Tanggal'] = pd.to_datetime(df_maint['Tanggal'], errors='coerce')
+    df_maint = df_maint.dropna(subset=['Tanggal'])
+    df_recent = df_maint.sort_values("Tanggal", ascending=False).head(10)
+    df_recent['Tanggal'] = df_recent['Tanggal'].dt.strftime('%d-%m-%Y')
+    st.dataframe(df_recent)
+else:
+    st.info("Belum ada data maintenance.")
 
     # --- Notifikasi Alat Rusak ---
     st.subheader("⚠️ Notifikasi Alat Rusak")
