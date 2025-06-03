@@ -7,6 +7,24 @@ from gsheets_helper import open_sheet
 SPREADSHEET_ID_ALAT = "1pONEpw-ww19dOJ88vibUTuBy6PvMOBTso7Yp2LVbjAU"       # untuk daftar_alat
 SPREADSHEET_ID_MAINT = "1sELnjwsgObSAtfAf2tGZSGvj47dfYC1ESDZSaXqTN4g"       # untuk input_maintenance
 
+def load_maintenance_all_sheets(spreadsheet_id):
+    try:
+        sh = open_sheet(spreadsheet_id)
+        worksheets = sh.worksheets()
+        all_data = []
+        for ws in worksheets:
+            data = ws.get_all_values()
+            if len(data) > 1:
+                df = pd.DataFrame(data[1:], columns=data[0])
+                all_data.append(df)
+        if all_data:
+            df_maint_all = pd.concat(all_data, ignore_index=True)
+            return df_maint_all
+        else:
+            return pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
+    except Exception:
+        return pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
+
 def show():
     # Judul Dashboard
     st.markdown(
@@ -26,15 +44,8 @@ def show():
     except Exception:
         df_alat = pd.DataFrame(columns=["NAMA ALAT", "RUANGAN", "MERK"])
 
-    # Maintenance
-    try:
-        df_maint_raw = open_sheet(SPREADSHEET_ID_MAINT, "input_maintenance").service.spreadsheets().values().get(
-            spreadsheetId=SPREADSHEET_ID_MAINT,
-            range="input_maintenance!A1:Z1000"
-        ).execute().get("values", [])
-        df_maint = pd.DataFrame(df_maint_raw[1:], columns=df_maint_raw[0]) if len(df_maint_raw) > 1 else pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
-    except Exception:
-        df_maint = pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
+    # Maintenance (gabung semua worksheet)
+    df_maint = load_maintenance_all_sheets(SPREADSHEET_ID_MAINT)
 
     # Format tanggal
     if "Tanggal" in df_maint.columns and not df_maint.empty:
@@ -45,12 +56,12 @@ def show():
     col1, col2, col3 = st.columns(3)
     col1.metric("Total Alat", len(df_alat))
     col2.metric("Total Maintenance", len(df_maint))
-    col3.metric("Jumlah Ruangan", df_alat["Ruangan"].nunique() if "Ruangan" in df_alat else 0)
+    col3.metric("Jumlah Ruangan", df_alat["RUANGAN"].nunique() if "RUANGAN" in df_alat.columns else 0)
 
     # --- Distribusi Alat per Ruangan ---
     st.subheader("📍 Distribusi Alat per Ruangan")
-    if not df_alat.empty and "Ruangan" in df_alat.columns:
-        fig = px.histogram(df_alat, x="Ruangan", title="Jumlah Alat per Ruangan")
+    if not df_alat.empty and "RUANGAN" in df_alat.columns:
+        fig = px.histogram(df_alat, x="RUANGAN", title="Jumlah Alat per Ruangan")
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("Tidak ada data ruangan untuk ditampilkan.")
@@ -65,7 +76,7 @@ def show():
 
     # --- Notifikasi Alat Rusak ---
     st.subheader("⚠️ Notifikasi Alat Rusak")
-    if not df_maint.empty and "STATUS" in df_maint.columns:
+    if not df_maint.empty and "Status" in df_maint.columns:
         df_maint["Status"] = df_maint["Status"].fillna("")
         rusak = df_maint[df_maint["Status"].str.lower() == "rusak"]
         if not rusak.empty:
@@ -74,4 +85,4 @@ def show():
         else:
             st.success("Semua alat dalam kondisi baik.")
     else:
-        st.info("semua alat dalam kondisi baik")
+        st.info("Semua alat dalam kondisi baik.")
