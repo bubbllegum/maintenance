@@ -56,11 +56,11 @@ def show():
                 row = [
                     str(tanggal),
                     ruangan,
-                    alat,
-                    teknisi,
+                    nama alat,
+                    nama teknisi,
                     status,
                     catatan,
-                    gambar_base64,
+                    gambar,
                 ]
                 worksheet_alat.append_row(row)
                 st.success(f"Data berhasil disimpan di worksheet '{worksheet_name}'!")
