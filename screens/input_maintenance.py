@@ -2,7 +2,6 @@ import streamlit as st
 from gsheets_helper import open_sheet, create_worksheet
 from googleapiclient.errors import HttpError
 import base64
-import time
 
 SPREADSHEET_ID = "1sELnjwsgObSAtfAf2tGZSGvj47dfYC1ESDZSaXqTN4g"
 
@@ -32,16 +31,23 @@ def show():
                 gambar_base64 = ""
 
             worksheet_name = f"{ruangan} - {alat}"
-
             try:
+                # Coba buka worksheet
                 worksheet_alat = open_sheet(SPREADSHEET_ID, worksheet_name)
             except ValueError:
+                # Worksheet belum ada, coba buat
                 try:
                     create_worksheet(SPREADSHEET_ID, worksheet_name)
-                    time.sleep(2)  # beri waktu Google Sheets untuk siap
                     worksheet_alat = open_sheet(SPREADSHEET_ID, worksheet_name)
+                except HttpError as e:
+                    # Worksheet kemungkinan sudah ada (race condition)
+                    if 'already exists' in str(e):
+                        worksheet_alat = open_sheet(SPREADSHEET_ID, worksheet_name)
+                    else:
+                        st.error(f"Terjadi kesalahan saat membuat worksheet: {e}")
+                        st.stop()
                 except Exception as e:
-                    st.error(f"Gagal membuat worksheet baru: {e}")
+                    st.error(f"Terjadi kesalahan: {e}")
                     st.stop()
 
             try:
@@ -49,4 +55,4 @@ def show():
                 worksheet_alat.append_row(row)
                 st.success(f"Data maintenance berhasil disimpan di worksheet '{worksheet_name}'!")
             except Exception as e:
-                st.error(f"Gagal menambahkan data ke worksheet: {e}")
+                st.error(f"Terjadi kesalahan saat menambahkan data: {e}")
