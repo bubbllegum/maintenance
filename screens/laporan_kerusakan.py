@@ -17,7 +17,10 @@ def kirim_notif_telegram(teks, foto=None):
     return response.json()
 
 def show():
-    st.title("Laporan Kerusakan Alat Medis (Publik)")
+    st.markdown(
+    "<h1 style='text-align: center; color: white;'>Laporan Kerusakan</h1>", 
+    unsafe_allow_html=True
+)
 
     nama_pelapor = st.text_input("Nama Pelapor")
     alat_terkait = st.text_input("Alat Terkait")
