@@ -6,7 +6,7 @@ SPREADSHEET_ID = "1pONEpw-ww19dOJ88vibUTuBy6PvMOBTso7Yp2LVbjAU"
 
 def show():
     st.markdown(
-    "<h1 style='text-align: center; color: white;'>Daftar Alat Medis Publik</h1>", 
+    "<h1 style='text-align: center; color: white;'>Daftar Alat Medis</h1>", 
     unsafe_allow_html=True
 )
 
