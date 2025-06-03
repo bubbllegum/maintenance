@@ -1,48 +1,68 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from gsheets_helper import open_sheet
+from google.oauth2.service_account import Credentials
+from googleapiclient.discovery import build
 
-SPREADSHEET_ID_ALAT = "1pONEpw-ww19dOJ88vibUTuBy6PvMOBTso7Yp2LVbjAU"       # untuk daftar_alat
-SPREADSHEET_ID_MAINT = "1sELnjwsgObSAtfAf2tGZSGvj47dfYC1ESDZSaXqTN4g"       # untuk input_maintenance
+# Path ke file credential JSON Google service account kamu
+SERVICE_ACCOUNT_FILE = "credentials.json"
+
+# Scope akses spreadsheet readonly
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+
+# ID Google Sheets
+SPREADSHEET_ID_ALAT = "1pONEpw-ww19dOJ88vibUTuBy6PvMOBTso7Yp2LVbjAU"       # daftar alat
+SPREADSHEET_ID_MAINT = "1sELnjwsgObSAtfAf2tGZSGvj47dfYC1ESDZSaXqTN4g"     # input maintenance
+
+def get_service():
+    creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    service = build('sheets', 'v4', credentials=creds)
+    return service
 
 def load_maintenance_all_sheets(spreadsheet_id):
     try:
-        sh = open_sheet(spreadsheet_id)
-        worksheets = sh.worksheets()
-        st.write(f"Worksheet ditemukan: {[ws.title for ws in worksheets]}")  # debug tampil di UI
+        service = get_service()
+        spreadsheet = service.spreadsheets().get(spreadsheetId=spreadsheet_id).execute()
+        sheet_titles = [sheet['properties']['title'] for sheet in spreadsheet.get('sheets', [])]
+        st.write(f"Worksheet ditemukan: {sheet_titles}")
+
         all_data = []
-        for ws in worksheets:
-            data = ws.get_all_values()
-            st.write(f"{ws.title} punya {len(data)-1} data baris")  # debug tampil di UI
-            if len(data) > 1:
-                df = pd.DataFrame(data[1:], columns=data[0])
+        for title in sheet_titles:
+            result = service.spreadsheets().values().get(
+                spreadsheetId=spreadsheet_id,
+                range=f"'{title}'!A1:Z1000"
+            ).execute()
+            values = result.get('values', [])
+            st.write(f"{title} punya {len(values)-1} data baris")
+            if len(values) > 1:
+                df = pd.DataFrame(values[1:], columns=values[0])
                 all_data.append(df)
+
         if all_data:
-            df_maint_all = pd.concat(all_data, ignore_index=True)
-            st.write(f"Total baris maintenance gabungan: {len(df_maint_all)}")  # debug tampil di UI
-            return df_maint_all
+            df_all = pd.concat(all_data, ignore_index=True)
+            st.write(f"Total baris maintenance gabungan: {len(df_all)}")
+            return df_all
         else:
             st.info("Tidak ada data maintenance di semua worksheet.")
             return pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
+
     except Exception as e:
         st.error(f"Error load maintenance: {e}")
         return pd.DataFrame(columns=["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"])
 
 def show():
-    st.markdown(
-        "<h1 style='text-align: center; color: white;'>📊 Dashboard Alat Medis</h1>", 
-        unsafe_allow_html=True
-    )
+    st.markdown("<h1 style='text-align: center; color: white;'>📊 Dashboard Alat Medis</h1>", unsafe_allow_html=True)
 
     # Load daftar alat
     try:
-        df_alat_raw = open_sheet(SPREADSHEET_ID_ALAT, "daftar_alat").service.spreadsheets().values().get(
+        service = get_service()
+        result = service.spreadsheets().values().get(
             spreadsheetId=SPREADSHEET_ID_ALAT,
             range="daftar_alat!A1:Z1000"
-        ).execute().get("values", [])
-        if len(df_alat_raw) > 1:
-            df_alat = pd.DataFrame(df_alat_raw[1:], columns=df_alat_raw[0])
+        ).execute()
+        values = result.get('values', [])
+        if len(values) > 1:
+            df_alat = pd.DataFrame(values[1:], columns=values[0])
             df_alat.columns = df_alat.columns.str.upper()
         else:
             df_alat = pd.DataFrame(columns=["NAMA ALAT", "RUANGAN", "MERK"])
@@ -54,7 +74,7 @@ def show():
     df_maint = load_maintenance_all_sheets(SPREADSHEET_ID_MAINT)
 
     # Normalisasi nama kolom di maintenance
-    df_maint.columns = df_maint.columns.str.capitalize()  # contoh: 'ruangan' jadi 'Ruangan'
+    df_maint.columns = df_maint.columns.str.capitalize()
 
     # Format tanggal
     if "Tanggal" in df_maint.columns and not df_maint.empty:
