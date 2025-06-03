@@ -39,7 +39,7 @@ def show():
                 gambar_base64 = ""
 
             worksheet_name = f"{ruangan} - {alat}"
-            headers = ["Tanggal", "Ruangan", "Alat", "Teknisi", "Status", "Catatan", "Gambar"]
+            headers = ["Tanggal", "Ruangan", "Nama Alat", "Nama Teknisi", "Status", "Catatan", "Gambar"]
 
             if worksheet_exists(SPREADSHEET_ID, worksheet_name):
                 worksheet_alat = open_sheet(SPREADSHEET_ID, worksheet_name)
