@@ -1,7 +1,11 @@
 import streamlit as st
 import base64
 import time
-from gsheets_helper import open_sheet, create_worksheet_with_header
+from gsheets_helper import (
+    open_sheet, 
+    create_worksheet_with_header, 
+    worksheet_exists
+)
 
 SPREADSHEET_ID = "1sELnjwsgObSAtfAf2tGZSGvj47dfYC1ESDZSaXqTN4g"
 
@@ -17,7 +21,7 @@ def show():
         ruangan = st.text_input("Ruangan", "")
         alat = st.text_input("Nama Alat", "")
         teknisi = st.text_input("Nama Teknisi", "")
-        status = st.selectbox("Status", ["Selesai", "Perbaikan", "Dalam Proses pengajuan"])
+        status = st.selectbox("Status", ["Selesai", "Perbaikan", "Dalam Proses"])
         catatan = st.text_area("Catatan")
         gambar = st.file_uploader("Upload Gambar (opsional)", type=["png", "jpg", "jpeg"])
 
@@ -37,14 +41,12 @@ def show():
             worksheet_name = f"{ruangan} - {alat}"
             headers = ["Tanggal", "Ruangan", "Alat", "Teknisi", "Status", "Catatan", "Gambar (Base64)"]
 
-            try:
-                # Coba buka worksheet jika sudah ada
+            if worksheet_exists(SPREADSHEET_ID, worksheet_name):
                 worksheet_alat = open_sheet(SPREADSHEET_ID, worksheet_name)
-            except ValueError:
-                # Worksheet belum ada, buat worksheet baru dengan header
+            else:
                 try:
                     create_worksheet_with_header(SPREADSHEET_ID, worksheet_name, headers)
-                    time.sleep(2)  # Tunggu sebentar agar worksheet siap
+                    time.sleep(2)  # Tunggu sheet siap
                     worksheet_alat = open_sheet(SPREADSHEET_ID, worksheet_name)
                 except Exception as e:
                     st.error(f"Gagal membuat worksheet baru: {e}")
@@ -61,6 +63,6 @@ def show():
                     gambar_base64,
                 ]
                 worksheet_alat.append_row(row)
-                st.success(f"Data maintenance berhasil disimpan di worksheet '{worksheet_name}'!")
+                st.success(f"Data berhasil disimpan di worksheet '{worksheet_name}'!")
             except Exception as e:
-                st.error(f"Gagal menambahkan data ke worksheet: {e}")
+                st.error(f"Gagal menambahkan data: {e}")
